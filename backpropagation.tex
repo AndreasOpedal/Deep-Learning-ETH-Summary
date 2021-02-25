@@ -1,0 +1,34 @@
+\section*{Backpropagation}
+\subsection*{Notation}
+Network $F = F_{k:1} = F_k \circ F_{k-1} \circ ... \circ F_1$ \\
+Width of a layer: $\text{width}_l=n_l:=\text{dim}(\text{range}(F_l))$\\
+Using activations: $\mathbf z_l:=F_{l:1}(\mathbf x)=(F_l\circ F_{l-1:1})(\mathbf x)=F_l(\mathbf z_{l-1})$\\
+Jacobian map for $F:\mathbb R^n\rightarrow \mathbb R^m: \partial F=(\partial_{ij}F)=(\partial_i F_j): \mathbb R^n\rightarrow \mathbb R^{m\times n}$\\
+Chain rule for maps: $\underbrace{\partial(G\circ F)}_{\mathbb R^n\rightarrow \mathbb R^{m\times n}}=\underbrace{(\partial G\circ F)\cdot\partial F}_{\mathbb R^n\rightarrow (\mathbb R^{m\times k}\cdot \mathbb R^{k\times n})}$\\
+The Jacobian is 
+$\partial F = \prod_{l = k}^1\partial F_l \circ F_{l-1:1}, \quad \partial F(\mathbf x)=\prod_{l = k}^1\partial F_l (\mathbf z_{l-1})$\\
+With loss function: $f=l\circ F$\\
+Gradient information provides direction of steepest descent:\\ $\lim_{\eta\rightarrow0}\arg\min_{\pmb \vartheta:||\pmb\vartheta||=1}f(\mathbf{x};\pmb\theta +\eta\pmb\vartheta)=-\frac{\nabla_{\pmb\theta}f(\mathbf x;\pmb\theta)}{||\nabla_{\pmb\theta}f(\mathbf x;\pmb\theta)||}$\\
+Derivative wrt parameter in layer: $h'\circ g$\\
+Derivative wrt parameter in next layer: $(\partial h\circ g)\cdot g'$
+\subsection*{Backpropagation}
+$\nabla_{\pmb\theta_l}F=(\partial F_{k:l+1}\circ F_{l:1})\cdot(F'_l\circ F_{l-1:1})$\\
+Or with activity vectors: $\nabla_{\pmb\theta_l}F(\mathbf x)=\partial F_{k:l+1}(\mathbf z_l)\cdot F'_l(\mathbf z_{l-1})$\\(downstream Jacobian $\times$ local Jacobian). $F=G\circ F_{\pmb\theta} \circ H$, apply chain rule twice $(\partial G \circ F_{\pmb\theta}\circ H)\cdot (F_{\pmb\theta}\circ H)' = (\partial G \circ F_{\pmb\theta}\circ H)\cdot (F_{\pmb\theta}'\circ H).$\\
+$\partial l$ is a Jacobi vector. Get computational savings by multiplying it with Jacobi matrices in reverse order (this is exactly backprop!)\\
+$\nabla_{\pmb\theta_l}f(\mathbf x)=\partial(l\circ F_{k:l+1})(\mathbf z_l)\cdot F'_l(\mathbf z_{l-1})=:\pmb\xi_{l+1}\cdot F'_l(\mathbf z_{l-1})$\\
+Row vectors $\pmb\xi_{l}$ can be calculated through backward iteration: \\
+$\pmb\xi_{k+1}=\partial l(\mathbf z_k), \quad \pmb\xi_{l}=\pmb\xi_{l+1}\partial F_l(\mathbf z_{l-1})$\\
+\textbf{Backpropagation algorithm} can be written in three steps: (1) forward pass computing $\mathbf z_l's$, (2) backward pass computing $\pmb\xi_{l}'s$ and (3) local computations computing $\nabla_{\pmb\theta_l}f(\mathbf x)'s$
+\subsection*{Automatic differentiation}
+\textbf{Reverse} mode (backpropagation) and \textbf{forward} mode\\
+Forward mode: For each parameter, compute the derivatives for each of the (intermediate) outputs starting from the parameter (no forward pass here!)\\
+For $f:\mathbb R^N\rightarrow\mathbb R^M$:\\
+Reverse mode more efficient if $M<N$ (scales in $M$, $\mathcal O((V+E)M)$)\\
+Forward mode more efficient if $M>N$ (scales in $N$, $\mathcal O(N(V+E))$)\\
+For DL: $N=\#\text{parameters}$ and $M=1$ (scalar loss)\\
+Reverse mode requires in general more memory due to storing results from forward pass
+\subsection*{Derivatives}
+Element-wise function (e.g. activation fun): $\frac{\partial}{\partial \mathbf x}f(\mathbf x)=\text{diag}(f'(\mathbf x))$\\
+ReLU wrt pre-activations: $\frac{\partial}{\partial \mathbf x}\max(0,\mathbf x)=\text{diag}(H(\mathbf x))$\\
+ReLU wrt params: $\frac{\partial}{\partial \mathbf W_{ij}}\max(0,\mathbf{Wx})_k=\max(0,\text{sign}(\mathbf{W_i}^T\mathbf x))x_j\delta_{ik}$\\
+ReLU wrt activations: $\frac{\partial}{\partial \mathbf x_j}\max(0,\mathbf{Wx})_i=\max(0,\text{sign}(\mathbf W_i^T\mathbf x))\cdot W_{ij}$

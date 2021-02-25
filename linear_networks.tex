@@ -1,0 +1,30 @@
+\section*{Linear Networks}
+Linear unit: $\iota(\mathbf x;\pmb\theta)=\mathbf x\cdot \pmb\theta,\quad$ Affine unit: $\iota(\mathbf x;\pmb\theta,b)=\mathbf x\cdot \pmb\theta+b$\\
+Level sets: $\iota(\mathbf x +\Delta\mathbf x,\mathbf \theta)=\iota(\mathbf x, \mathbf \theta), \quad \Delta\mathbf x\perp \mathbf \theta$\\
+Linear unit defines: direction of change via $\mathbf{\frac{\theta}{||\theta||}}$, rate of change via $||\mathbf \theta||$\\
+Learning algo for linear units: $\Delta\mathbf\theta=\eta(y-\mathbf{x\cdot\theta)x}$\\
+Homogeneity: $f(\alpha \mathbf x)=\alpha f(\mathbf x)$\\
+Additivity: $f(\mathbf{x+y})=f(\mathbf x)+f(\mathbf y)$\\
+$\Rightarrow f$ is linear with these properties\\
+$f, g$ linear $\Rightarrow f\circ g$ linear\\
+Affine functions: $f(\alpha\mathbf x+\beta\mathbf y)=\alpha f(\mathbf x)+\beta f(\mathbf y), \quad \forall\mathbf{x,y}:\forall \alpha,\beta: \alpha+\beta = 1$
+\subsection*{Linear Autoencoder}
+Def: $\mathbf{x\mapsto z \mapsto y}, \quad \mathbf{z=Cx, y=Dz, \quad C,D}^T\in\mathbb R^{m\times n}, m<n$\\
+Loss: $l(\mathbf x)=\frac{1}{2}||\mathbf{x-y}||^2$\\
+Matrix notation: $\mathbf{X,Y}\in\mathbb{R}^{n\times s}:\quad \mathbf{\theta=(C,D)}\rightarrow_{min}\frac{1}{2s}||\mathbf{X-DCX}||^2_F$\\
+$\frac{\delta l(\mathbf x)}{\delta\mathbf C}=\mathbf D^T(\mathbf{y-x})\mathbf x^T\in\mathbb R^{m\times n}$\\
+$\frac{\delta l(\mathbf x)}{\delta\mathbf D}=\mathbf{(y-x)x}^T\mathbf C^T\in\mathbb{R}^{n\times m}$\\
+$\text{rank}(\mathbf{DC})\leq\min\{\text{rank}(\mathbf C), \text{rank}(\mathbf D)\}\leq m<n \quad\Rightarrow  \text{rank}(\mathbf{Y})\leq m$\\
+\textbf{Eckhart-Young Theorem: } $||\mathbf{X-X}_r||_F=\min_{\text{rank}(\mathbf Y)\leq r}||\mathbf{X-Y}||_F$\\
+$\mathbf{C=U}_m^T, \mathbf{D=U}_m \Rightarrow \mathbf{DCX=X}_m$
+\subsection*{Gradients of deep linear networks}
+Assume $\mathbf{X,Y}$ centered, $\mathbf X$ whitened: $\mathbf X\mapsto \mathbf{\Lambda}^{-\frac{1}{2}}\mathbf U^T\mathbf X, \text{s.t.} \frac{1}{s}\mathbf{XX}^T=\mathbf I$ \\
+Then LS problem $\Theta\rightarrow_{min}\frac{1}{2s}||\mathbf{\mathbf Y-\Theta\mathbf X}||^2_F$ can be written:\\ $\Theta\rightarrow_{min}\frac{1}{2}||\mathbf{\Theta-\Gamma}||^2_F, \quad \mathbf{\Gamma:=}\frac{1}{s}\mathbf{YX}^T$\\
+Let $\mathbf{\Theta=DC}$, then: $\frac{\delta l}{\delta \mathbf C}=\mathbf D^T(\mathbf{\Theta-\Gamma}), \frac{\delta l}{\delta\mathbf D}=(\mathbf{\Theta-\Gamma)C}^T$\\
+Now re-write: $\mathbf{DC-\Gamma=U(\tilde{D}\tilde{C}-\Sigma)V}^T, \quad \mathbf{\tilde{D}=U}^T\mathbf D, \mathbf{\tilde{C}=CV}$\\
+Then: $\frac{\delta l}{\delta \mathbf{\tilde{C}}}=\mathbf (\mathbf{\tilde{D}\tilde C-\Sigma)^T\tilde D}, \frac{\delta l}{\delta\mathbf{\tilde{D}}}=\mathbf{\tilde C}(\mathbf{\tilde D \tilde C-\Sigma)C}^T$\\
+Let $\mathbf d_r$ be rows of $\mathbf{\tilde D}$ and $\mathbf c_r$ be columns of $\mathbf{\tilde C}$. Then can minimize:\\
+$\tilde l(\mathbf{C,D})=\frac{1}{2}\sum_{r}(\mathbf d_r\cdot\mathbf c_r-\sigma_r)^2+\frac{1}{2}\sum_{r\neq q}(\mathbf d_r\cdot \mathbf c_q)^2$ (cooperative and competitive terms, second orthogonalizes)
+
+
+

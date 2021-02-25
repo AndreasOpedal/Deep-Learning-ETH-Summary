@@ -1,0 +1,74 @@
+\section*{Optimization}
+\subsection*{Losses}
+Squared loss: $l_\mathbf y(\pmb \nu)=\frac{1}{2}||\mathbf y -\pmb\nu||^2$\\
+Zero-one loss: $l_y(v)=\begin{cases} 0, \quad \nu=y \\ 1, \quad \text{else}\end{cases}$\\
+Log-loss (multiclass): $l_y(\nu)=-\log \nu_y$\\
+Soft target cross-entropy ($\mathbf y\in[0,1]^m$): \\
+$l_\mathbf y(\pmb \nu)=-\sum_{j=1}^my_j\log\nu_j\geq-\sum_{j=1}^my_j\log y_j=:H(\mathbf y)$\\
+Probabilistic loss: $l_\mathbf y(\pmb\nu)=-\log p(\mathbf y;\pmb \nu)$ (e.g. replace with isotropic Gaussian to get squared loss)\\
+\textbf{Exponential family:} $p(\mathbf y;\pmb\nu)=h(\mathbf y)\exp[\mathbf y\cdot\pmb\nu-\psi(\pmb\nu)]$, log partition/normalizing function $\psi$\\
+Can construct losses by taking distributions in the exponential family in the log prob loss and replace $\pmb\nu$ with $h(\pmb\theta\cdot\mathbf z)$, where $\mathbf z$ is produced by a Neural Network
+
+\subsection*{Gradient Descent and Optimization Theory}
+$\mathbf x^{k+1}=\mathbf x^k-\eta\nabla f(\mathbf x^k)$\\
+Solution to $\dot{\mathbf x}=-\nabla f(\mathbf x)$ is called gradient flow - approximated by GD\\
+Notes on $\eta$: Not typical to optimize by line search for neural networks since expensive to evaluate. Typically keep constant or use learning rate schedule. Selecting $\eta$ is a trade-off between computational speed (larger better) and convergence \& approximation of gradient flow (smaller better)\\
+\textbf{Quadratic Model}: 2nd order Taylor approximation yields\\
+$f(\mathbf{x+\Delta x})\approx f(\mathbf x)+\nabla f(\mathbf x)\cdot\Delta\mathbf x+\frac{1}{2}\Delta\mathbf x^T\nabla^2f(\mathbf x)\Delta\mathbf x$\\
+$\Rightarrow$ minimizer is $\Delta\mathbf x=-[\nabla^2f(\mathbf x)]^{-1}\nabla f(\mathbf x)$ (Newton's method)\\
+Setting $\nabla^2 f(\mathbf x)=\frac{1}{\eta}\mathrm I$ yields gradient descent ($\eta$ curvature of quadratic and step size, smaller $\eta$ gives more curvature and hence smaller step)\\
+\textbf{Convex:} $f(\lambda x +(1-\lambda)y)\leq \lambda f(x)+(1-\lambda)f(y), \quad \forall\lambda\in[0,1]$\\
+\textbf{FOC of convexity:} $f(x)\geq f(y)+\nabla f(y)^T(x-y)$\\
+\textbf{Lipschitz smoothness:} $||\nabla f(x)-\nabla f(y)||\leq L||x-y||$\\
+$\Leftrightarrow f(x)\leq f(y)+\nabla f(y)^T(x-y)+\frac{L}{2}||x-y||^2$\\
+\textbf{Strong convexity:} $f(x)\geq f(y)+\nabla f(y)^T(x-y)+\frac{\mu}{2}||x-y||^2$\\
+\textbf{Hessian of smooth and strongly convex function:} $\mu\mathrm I\preccurlyeq\nabla^2 f\preccurlyeq L\mathrm I$\\
+$\epsilon$-\textbf{Stationarity}: $||\nabla f(x)||\leq\epsilon$\\ (to measure local convergence)\\
+\textbf{PL condition (generalization of strong convexity without convexity):}\\
+$\frac{1}{2}||\nabla f(x)||^2\geq\mu(f(x)-f^*),\quad \forall x, f^*=\min f(x)$
+\subsection*{SGD}
+Assume additive structure $f(x)=\sum_{i=1}^nf_i(x)$
+$$x^{k+1}=x^k-\eta_k\nabla f_{I(k)}(x^k),\quad I(k)\sim \text{Unif}(1,...,n)$$
+Unbiased, $\mathbb{E}[\nabla f_I(x)] = \nabla f(x)$.\\
+$\mathbf V(x)=\frac{1}{n}\sum_{i=0}^n||\nabla f(x)-\nabla f_i(x)||^2$\\
+\textbf{Polyak Averages}: To combat variance around $x^*$\\
+$\bar{x}^{k+1}=\frac{k}{k+1}\bar{x}^k+\frac{1}{k+1}x^{k+1}$\\
+\textbf{Minibatch SGD}
+Sample $r$ functions $f_i$. Unbiased and reduces variance $\alpha r$. Smaller $r$ implies more noise, yet better results in non-convex setting. Noise might help avoid getting stuck in bad regions. Batch size depending on concurrency model of GPU, has to fit in GPU memory.\\
+\textbf{Learning rate}
+For theoretical results typically $\eta_k \propto \frac{1}{k}$, since $\sum^{\infty}\frac{1}{k} = \infty$ (min requirement, to ensure we can approach end point) and  $\sum^{\infty}\frac{1}{k^2} \leq \infty$. However in practice: keep step size constant or reduce step size at a small number of points.\\
+\textbf{Theorem} Assume $f = \sum_i f_i$, each $f_i$ $L_i$-smooth, $\sup_iL_i\leq L$ and $f$ $\mu$-strongly convex. $x^*$ minimizer of $f$ and $\sigma^2:=V(x^*)=\dfrac{1}{n}\sum\|\nabla f_i(x)\|$. $x^k$ SGD iterate generated with $\eta\leq1/\mu$. Then
+$$\mathbb{E}\|x^k-x^*\|^2\leq A^k\|x^0-x^*\|^2+B,$$
+where $A=1-2\eta\mu(1-\eta L),\quad B=\dfrac{\eta\sigma^2}{\mu-\eta L}$, the bigger the step size, the more stochasticity. Advantage over SGD: can return a set of visited parameters.\\
+\textbf{Variance reduction: } $x^{k+1}=x^k-\eta[\nabla f_i(x^k)-\nabla f_i(\bar x)+\nabla f(\bar x)]$\\
+\textbf{Gradient clipping: } To avoid exploding gradients, can bound the norm of the gradient in the update step by a threshold (e.g. when reaching a "cliff")
+\subsection*{Momentum} If gradients start going into a particular direction, keep going in that same direction (inertia in direction we had)\\
+\textbf{Nesterov's Acceleration Method}
+\begin{align*}
+    y_{k+1}&=x_k+\beta(x_k-x_{k-1})\\
+    x_{k+1}&=y_{k+1}-\eta\nabla f(y_{k+1})
+\end{align*}
+\textbf{Theorem} Let $f$ $L$-smooth and $\mu$-strongly convex, $\kappa = \dfrac{L}{\mu},\quad \beta = \dfrac{\sqrt{\kappa}-1}{\sqrt{\kappa}+1}$. Then
+$f(x^k)-f(x^*)\leq L\left(\dfrac{\sqrt{\kappa}-1}{\sqrt{\kappa}}\right)^k\|x^0-x^*\|^2.$\\
+\textbf{Polyak's Heavy ball method}\\
+$x^{k+1} = x^k -\eta\nabla f(x^k)+\beta(x^k-x^{k-1})\quad \beta \in (0,1).$
+\subsection*{Adaptivity}
+Adapt learning rate per parameter or dimension. Advantage in compositional models: adapt step size for different parameters in different layers (non-uniformity of parameters).\\
+\textbf{AdaGrad} Increasing sequence:\\
+$\gamma^k = \gamma^{k-1} + \nabla f(x^k)\odot\nabla f(x^k).$\\
+$\gamma^k$ will be large for parameters that have received large updates. Use these as pre-conditioner matrix\\
+$x^{k+1} = x^k - \eta\Lambda^k\nabla f(x^*),$\\ where $\Lambda^k = \text{diag}(\lambda_i^k),$ with $\lambda_i^k = \dfrac{1}{\sqrt{\gamma_i^k}+\delta}, \quad \delta > 0$\\
+If something has received very significant updates in the past, then we decay the learning rate faster.\\
+\textbf{Adam} Momentum + adaptivity\\
+$\textbf{m}^k = \beta \textbf{m}^{k-1}+(1-\beta)\nabla f(x^k), \quad \beta\in [0,1],\quad \textbf{m}^0=0$\\
+$x^{k+1}=x^k-\dfrac{\eta}{1-\beta^k}\textbf{m}^k$. \\
+Since $\textbf{m}^0 = 0$ estimate is biased, $\dfrac{1}{(1-\beta^k)}$ corrects for this.\\
+$\gamma^k=\alpha\gamma^{k-1} + (1-\alpha)\left[\nabla f(x^k)\odot\nabla f(x^k)\right]$\\
+$x^{k+1}=x^k-\dfrac{\eta}{1-\beta^k}\Lambda^k\textbf{m}^k$\\
+$\Lambda^k=\text{diag}(\lambda_i^k)$, with $\dfrac{1}{\lambda_i^k}=\sqrt{\dfrac{\gamma_i^k}{1-\alpha^k}}+\delta$.\\
+As AdaGrad, not parametrization invariant (matrix depends on basis of chosen parametrization). Typical values $\beta=0.9$, $\alpha=0.99$.\\
+\textbf{AMSGrad:} enforce monotonic increase of $\gamma$ to ensure convergence, $\hat{\gamma}^{k+1}=\max\{\hat{\gamma}^k,\gamma^{k+1}\}$\\
+\textbf{Compressed stochastic gradients}\\
+SignSGD: $x^{k+1} = x^k-\eta_k\text{sign}\left(\nabla f_{I(k)}(x^k)\right)$. Reduces computational and communication complexity.
+
+

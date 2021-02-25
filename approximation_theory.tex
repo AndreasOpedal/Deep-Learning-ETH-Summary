@@ -1,0 +1,36 @@
+\section*{Approximation Theory}
+\subsection*{Definitions and notation}
+$f \simeq \mathcal{G} \iff\text{
+approx-err}(f,\mathcal{G})=\inf \{g\in\mathcal{G} \vert\ {||f-g||}_{\infty}\}=0$ \\
+Uniform convergence: $(g_m)\overset{\infty}{\rightarrow}f \Leftrightarrow\forall\epsilon>0:\exists m\geq1:||g_m-f||_\infty<\epsilon$\\
+Follows that: $\mathcal G \ni g_m\overset{\infty}{\rightarrow}f \Rightarrow f\simeq \mathcal G$\\
+% dense 
+\textbf{Denseness: }$\mathcal{G} \subseteq\mathcal{F}$ dense in $\mathcal{F}  \iff \mathcal{F} \simeq \mathcal{G} \iff \forall f\in\mathcal{F}, f \simeq \mathcal{G}$  \\
+\textbf{Closure} is all functions that can be approximated by $\mathcal G: \text{cl}(\mathcal G)$\\
+% universal approx def
+$\mathcal{G}$ \textbf{universal approximator} $\iff C(S)\simeq\mathcal{G}(S) \forall$ compact 
+$ S \subset \mathbb{R}^n$ (compact = closed and bounded)
+\subsection*{Weierstrass Theorem}
+Polynomials $\mathcal P$ are dense in $C([a,b]) \forall a,b\in\mathbb{R}$
+% universal approx thm
+\subsection*{Universal approximation theorem (1d)}
+Let $\sigma \in C^{\infty}(\mathbb{R})$ smooth \& not polynomial,\\ $\mathcal{G}_{\sigma}^1=\{g: g(x) = \sigma(ax + b)\quad a,b\in\mathbb{R}\}, H_{\sigma}^1 = \text{span}(\mathcal{G}_{\sigma}^1)$, \\then $H_{\sigma}^1$ is a universal approximator (can't pick polynomial because then we form polynomials of limited degree)
+\subsection*{Ridge function theorem}
+$\mathcal{G}_{\sigma}^n=\{g: g(x)=\sigma(x\cdot \theta)\ \theta\in\mathbb{R^n}\}, \mathcal{G}^n = \underset{\rm \sigma\in 
+C(\mathbb{R})}
+{\rm \cup}
+\mathcal{G}_{\sigma}^n, H_{\sigma}^n =\text{span}(\mathcal{G}^n)$ \\Then $H^n$ is a universal function approximator\\
+(Problem: here we can pick any combination of ridge functions)
+% universal in higher dim thm
+\subsection*{Dimension lifting theorem}
+$H^1_{\sigma}$ univ. approx for $C(\mathbb{R}) \Rightarrow H^n_{\sigma}$ univ. approx for 
+$C(\mathbb{R^n})\quad\forall n\geq1$
+%gradient regularity 
+\subsection*{Barron's theorem (number of units required)}
+Gradient regularity condition: $C_g = \int \| \omega \|\cdot |\hat{g}(\omega)|d\omega < \infty$\\If g differentiable, then $\hat{\nabla g}(\omega) = \omega\cdot \hat{g}(\omega)$\\
+%Barron's theorem
+\textbf{Theorem:} Let $\sigma$ be bounded, monotonic s.t. $\lim_{t\rightarrow\infty}\sigma(t) = 1$\& $\lim_{t\rightarrow-\infty}\sigma(t) = 0$. Let $g:\mathbb{R}^n\rightarrow\mathbb{R}$ with $C_g < \infty$, \& $r>0$. Then $\exists (f_m(x))_{m=1}^{\infty}$ sequence defined as $f_m(x) = \sum_{j=1}^m\left(\beta_j\sigma(\theta_j\cdotx + b_j) + b_0\right)$, s.t. \\$ \int_{r_{\mathbb{B}}}(g(x) - f_m(x))^2\mu(dx) \leq \mathcal{O}(\frac{1}{m}), \\ r_{\mathbb B}=\{x\in\mathbb R^n:||x||\leq r\}, \mu$ probability measure. Independent of $n$!\\
+$\Rightarrow$ no curse of dimensionality when approx. certain functions
+\subsection*{Benefits of depth}
+Function $g(\mathbf x)=\psi(||\mathbf x||)$ has exponential advantages in approximating with $2$ layers vs $1$: \\
+Upper bound on how much space covered by 1 layer: $me^{-n}$

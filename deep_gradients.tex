@@ -1,0 +1,40 @@
+\section*{Deep Gradients}
+\textit{Tricks and approaches to improve learning in deep networks}
+\subsection*{Short Connectivity}
+Motivation: Avoid vanishing gradients by using activations from previous layers until adjacent layer learns its weights\\
+Use if get worse performance on train set by going deeper\\
+\textbf{Residual layers}: $g(\mathbf x)=\mathbf x+f(\mathbf x;\pmb\theta)$\\
+If weights are initialized around zero, the gradient might not be able to propagate through properly. Now Jacobian at initialization ($f\approx 0$) will be: $\mathbf J_g=\mathbf I+\mathbf J_f\approx \mathbf I$, which is a better start since the gradient will flow through with identity map\\
+If dimensions do not match: $g(\mathbf x)=\mathbf{Wx}+f(\mathbf x;\pmb\theta), \quad \mathbf J_g=\mathbf W+\mathbf J_f\approx \mathbf W$ at initialization $f\approx 0$\\
+Can skip an arbitrary number of layers\\
+Empirically see that ResNets allows the model to better take advantage of depth. Common in computer vision.\\
+Note: They improve training, but do not increase representational power!
+\subsection*{Dense Connectivity}
+Connect layer output to all downstream layers ($\Rightarrow$ get more channels in CNNs). Concatenate activations instead of adding as in ResNets\\
+\textbf{Residual connections:} shortcut layers and \textit{add} back in\\
+\textbf{Skip connections:} shortcut layers and \textit{concatenate} back in
+\subsection*{Normalization}
+No agreement on what they do and how they help, just \textit{that} they help\\
+Observation: Poorly calibrated dynamic range of activities (different variances) $\Rightarrow$ poor backpropagation of errors (vanishing gradients)\\
+\textbf{Batch Normalization}\\
+Motivation: have strong dependencies between weights in layers, want to find a suitable learning rate to get similar scale\\
+Broadly used in vision\\
+Dependendence on batch size not suitable for all architectures (e.g. RNNs)\\
+Normalize layer $l$ activations for a batch $\mathrm I \subseteq[1:s]$:
+$\mathbf \mu^l:=\frac{1}{|\mathrm I|}\sum_{t\in\mathrm I}\mathbf z^l[t]$\\
+$\sigma_i^l:=\sqrt{\delta +\frac{1}{|\mathrm I|}\sum_{t\in\mathrm I}(z_i^l[t]-\mu_i)^2}$\\
+$\pmb \mu$ and $\pmb \sigma$ are functions of the weights: can be differentiated\\
+Normalize (z-score): $\tilde z_i^l:=\frac{z_i^l-\mu_i^l}{\sigma_i^l}$\\
+Regain representational power / expressivity: $\hat z_i^l=\alpha_i^l\tilde z_i^l+\beta_i^l$\\
+Ideally would do BN over whole dataset, but cannot for computational reasons\\
+\textbf{Weight Normalization}\\
+Normalize by the inner product of the weights instead of sd of activations\\
+Easier to use in inference / test mode than BN\\
+Permits distributed optimization as the normalization doesn't include dependencies on batch samples\\
+\textbf{Layer Normalization}\\
+Used in NLP\\
+Fix data point but use population average in layer as reference:\\
+$\mu^l[t]:=\frac{1}{m^l}\sum_{i=1}^m^lz_i^l[t]$\\
+$\sigma^l[t]:=\sqrt{\delta+\frac{1}{m^l}\sum_{i=1}^m^(z_i^l[t]-\mu^l[t])^2}$\\
+Rest same as BN\\
+BN, LN and WN are scale-invariant

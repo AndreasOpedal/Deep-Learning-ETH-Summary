@@ -1,0 +1,24 @@
+\section*{Sigmoid Networks}
+
+Ridge function if can be written as a composition of an affine function: $f=\phi\circ\iota, \quad f(\mathbf{x;\theta})=\phi(\mathbf{x\cdot\theta})$, preserves level sets and directional sensitivity\\
+But not rate of change: $||\nabla_{\mathbf x}f(\mathbf{x;\theta})||=|\phi'(\mathbf{x\cdot\theta})|\cdot||\mathbf\theta||$\\
+Threshold units like Heavyside and sign gives no derivative info\\
+$\Rightarrow$ \textbf{Logistic unit}: $\sigma(z)=\frac{1}{1+\exp\{-z\}}, \quad$ $\sigma^{-1}(t)=\log\frac{t}{1-t}$ (log-odds)\\  $\sigma'(z)=\sigma(z)(1-\sigma(z))=\sigma(z)\sigma(-z),$ smooth since polynomials in $\sigma$\\
+\textbf{Hyperbolic tangent}: $\tanh (z):=\frac{e^z-e^{-z}}{e^z+e^{-z}}=2\sigma(2z)-1$\\
+$\tanh' (z)=1-\tanh^2(z)$\\
+Sometimes preferred since range $(-1,1)$ symmetric around $0$
+\subsection*{Logistic regression}
+Cross-entropy loss $(y\in\{-1,+1\}): l(\mathbf x, y; \mathbf\theta)=-\log\sigma(y\mathbf{x\cdot\theta})$\\
+$\Rightarrow \nabla_{\mathbf\theta}l(\mathbf x,y)=-\sigma(-y\mathbf{x\cdot\theta})y\mathbf x$\\
+Cross-entropy loss $(y\in\{0,1\}):\\ l(\mathbf x, y; \mathbf\theta)=-y\log\sigma(\mathbf{x\cdot\theta})-(1-y)\log(1-\sigma(\mathbf{x\cdot\theta}))$
+\subsection*{Softmax}
+$\sigma_i^{\max}(\mathbf{x;\Theta})=\frac{\exp[\mathbf{x\cdot\theta}_i]}{\sum_{j=1}^k\exp[\mathbf{x\cdot\theta}_j]}, \quad \mathbf{\Theta=[\theta_1,...,\theta_k]}$\\
+Over-parameterized (can add/subtract any constant vector)\\
+Equal to sigmoid unit for $k=2, \quad \theta=\theta_1-\theta_2$\\
+$\nabla_{x_j}\sigma^{\max}_i=\begin{cases}\sigma_i^{\max}(1-\sigma_i^{\max}), \quad i=j \\ -\sigma_i^{\max}\sigma_j^{\max}, \quad i\neq j
+\end{cases}$\\
+\textbf{Softmax regression}: $l(\mathbf{x,y;\Theta})=-\mathbf y\cdot\log\sigma^{\max}(\mathbf x;\Theta), \mathbf y\in\{\mathbf e_1,...,\mathbf e_k\}$\\
+Alternatively: $l(\mathbf{x,y;\Theta})=-\sum_{i=1}^k[y_i\mathbf{x\cdot\theta}_i+\log(\sum_{j=1}^k\exp\{\mathbf x\cdot \theta_j\})]$\\
+$\Rightarrow \nabla_{\theta_i}l(\mathbf{x,y;\Theta})=(\sigma_i^{\max}-y_i)\mathbf x$
+
+

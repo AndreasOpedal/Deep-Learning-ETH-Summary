@@ -1,0 +1,54 @@
+\section*{Regularization}
+Intended to lower generalization error but not the training error
+\subsection*{Norm-based}
+Regularized objective
+$\mathcal{R}_{\Omega}(\pmb{\theta},\mathcal{S}) = \mathcal{R}(\pmb{\theta},\mathcal{S}) + \Omega(\pmb{\theta})$\\
+$L_2/$Frobenius norm for deep networks
+
+$\Omega(\pmb{\theta}) = \frac{1}{2}\sum_{l=1}^L\mu^l\|\pmb{\Theta^l}\|_F^2, \quad \mu^l\geq 0$
+
+\subsection*{Weight decay (a.k.a $L_2$ regularization)}
+$\nabla\Omega = \mu\pmb{\theta}$ or $\frac{\partial\Omega}{\partial \theta_{ij}^l} = \mu\theta_{ij}^l$ \\
+Gradient descent update:
+$\pmb{\theta}_{k+1} = (1-\eta\mu)\pmb{\theta}_k - \eta \nabla\mathcal{R}(\pmb{\theta}_k) $ \\ favors weights of small magnitude (shrinkage). Network behavior won't change much, avoiding learning local noise from data. $\pmb\theta$ still moves in the direction of the gradients, but also shrinks (if $\eta$ is small enough s.t. $1 -\eta \my > 0$). Forces network to learn only features which are seen often across the training set.\\
+$\Rightarrow$ shrink weights where gradient vanishes!\\
+Quadratic Taylor approximation of $\mathcal{R}$ around optimal $\pmb{\theta}$ + first order optimality condition of $\mathcal{R}_{\Omega}$:
+$\pmb{\theta} = \mathbf{Q}(\mathbf{\Lambda}+\mu\mathbf{I})^{-1}\mathbf{\Lambda}\mathbf{Q}^{\intercal}\pmb{\theta}^*$,
+$\mathbf{H}=\mathbf{Q\Lambda}\mathbf{Q}^{\intercal}$,\\
+$\lambda_i\gg\mu$: vanishing effect $\Rightarrow$ very small regularization and $\theta_i\approx\theta_i^*$\\
+$\lambda_i\ll\mu$: shrinking effect $\Rightarrow$ large regularization and $\theta_i\approx 0$\\
+\textbf{Take-away:} Small regularization in directions of large eigenvalues, which correspond to directions with a lot of curvature (steep), and vice versa\\
+\textbf{Ridge: }Linear regression + $L_2$-regularization = ridge regression \\$\pmb\theta = (\mathbf{X}^{\intercal}\mathbf{X}+\mu\mathrm{I})^{-1}\mathbf{X}^{\intercal}\mathbf{y}$\\
+\textbf{Constrained optimization view}: solve $\min_{\{\pmb\theta:||\pmb\theta||\leq r\}}\mathcal R(\pmb\theta)$, with projected GD\\
+$\pmb\theta(k+1)=\Pi_r[\pmb\theta(k)-\eta\nabla \mathcal R(\pmb\theta(k))],\quad \Pi_r(\mathbf v):=\min\{1,\frac{r}{||\mathbf v||}\}\mathbf v$\\
+Benefit: Constraints do not affect initial learning where weights are small, only become active once weights are large
+\subsection*{Early stopping}
+Stop learning after small number of iterations. Rely on validation data.
+If we can choose $k,\eta$ s.t.\\
+$(\mathbf{I}-\eta\mathbf{\Lambda})^k \overset{!}{=} \mu(\mathbf{\Lambda}+\mu\mathbf{I})^{-1}$, which for $\eta\lambda_i \ll 1$, $\lambda_i \ll \mu$ can be achieved in $k=\frac{1}{\eta\mu}$ steps. This indicates that a stronger regularization corresponds to stopping training earlier and vice versa.
+\subsection*{Ensemble methods}
+\textbf{Bagging: }
+Bootstrap samples $\mathcal{S}_r^k:$ sample $r$ times from $\mathcal{S}$ with replacement (on average 2/3 distinct examples). Train model on each sample, then average model output probs  $p(\mathbf{y}\mid\mathbf{x};\mathbf{\theta^k})$:\\
+$p(\mathbf{y}\mid\mathbf{x}) = \frac{1}{K}\sum_{k=1}^K p(\mathbf{y}\mid\mathbf{x};\mathbf{\theta}^k)$\\
+Almost always beneficial but expensive (not often used for NNs)\\
+\textbf{Knowledge Distillation} - best of both worlds \\
+Idea: Transfer knowledge from a complex [ensemble] model (source) into a simpler one (target). Useful if complex model is expensive to evaluate $\Rightarrow$ can deploy on less powerful hardware\\
+Train a simple model to learn the soft outputs of a trained complex model, using a high value of the temperature parameter in softmax
+\subsection*{Dropout}
+Idea: Randomly drop subsets of units for better robustness\\
+Keep probability $\pi_i^l$ for unit $i$ in layer $l$. All models share same weights\\
+Realizes an ensemble: $p(\mathbf{y|x})=\sum_\mathbf Zp(\mathbf Z)p(\mathbf{y|x,Z})$, $\mathbf Z$ zeroing mask\\
+To predict, can sample and average. But to avoid sampling blow-up can use heuristic:\\
+\textbf{Weight Rescaling} to avoid sampling 10-20 times, set 
+$\tilde{\theta}_{ij}^l \leftarrow \pi_j^{l-1}\theta_{ij}^l $\\
+Can be shown to be a (sometimes exact) approximation to a geometrically averaged ensemble
+\subsection*{Data Augmentation}
+\textit{Powerful trick to generate larger training set \& improve robustness}\\
+Generate virtual examples by applying transformations $\tau$ to each training example $(\mathbf{x},\mathbf{y})\mapsto (\tau(\mathbf{x}),\mathbf{y})$.
+PCA, cropping & resizing, rotations & reflections, etc.\\
+Can inject noise to inputs, weights (regularizing effect) and targets (create soft targets as labels might be noisy)
+\subsection*{Task Augmentation}
+\textbf{Pre-training}: Pre-train parts of model on more generic task, where training data is cheaper. E.g. pre-trained word embeddings or image feature maps. After this: fine-tune\\
+\textbf{Semi-supervised learning}: when not all data is labeled, create a prediction problem for unlabeled data. Define a generative model with corresponding log-likelihood. Generally more effective and more expensive than pre-training. Ex: predict relative position of image patch, predict coloring of gray-scale image
+\textbf{Multi-task learning}: share (lower-level) representations across tasks and learn these jointly
+

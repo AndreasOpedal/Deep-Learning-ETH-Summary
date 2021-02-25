@@ -1,0 +1,40 @@
+\section*{Background}
+$\log(x+1)\approx x$ if $|x|<<1$ \\
+\textbf{Variance and covariance:}\\
+$\mathbb{V}\text{ar}(X) = \text{Cov}(X,X) = \mathbb{E}[ (X - \mathbb{E}X)^2] = \mathbb{E}[X^2] - (\mathbb{E}[X])^2$ \\
+$\text{Cov}(\mathbf X, \mathbf Y)=\mathbb E[(\mathbf X - \mathbb E\mathbf X)(\mathbf Y - \mathbb E\mathbf Y)^T]=\mathbb E[\mathbf{XY}^T]-\mathbb E[\mathbf X]\mathbb E[\mathbf Y]^T$\\
+$\text{Cov}(aX+bY,cW+dV)=ac\text{Cov}(X,W)+ad\text{Cov}(X,V)+bc\text{Cov}(Y,W)+bd\text{Cov}(Y,V)$\\
+\textbf{Integration by parts}: $\int f \cdot g' = f\cdot g - \int f' \cdot g$\\
+\textbf{Geometric sums \& series:} $\sum_{k=0}^nar^k=a(\frac{1-r^{n+1}}{1-r})\overset{n\rightarrow\infty}{\longrightarrow}\frac{a}{1-r}, |r|<1$\\
+\textbf{Hoeffding's inequality: }\\ For $Z_i \in [0,1]$ iid, 
+$\mathbb P(\frac{1}{n}\sum_{i=1}^n Z_i - \mathbb E[Z]\geq t)\leq\exp\{-2n t^2\}$. \\
+For $Z_i \in [a_i,b_i]$ the upper bound is $\exp(-\frac{2nt^2}{\sum_{i=1}^n(b_i -a_i)^2})$\\
+\textbf{Boole's inequality - union bound} $\mathbb{P}\left(\underset{i}{\bigcup} A_i \right) \leq \underset{i}{\sum} \mathbb{P}(A_i)$ \\
+\textbf{Cauchy-Schwarz inequality}: $v^Tu\leq||v||_2||u||_2$\\
+\textbf{Hölder's inequality}: $v^Tu\leq ||v^Tu||_1\leq||v||_{p}||u||_{p^*}$, \\ where $1/p+1/p^*=1$, equality if $|v|^p=\gamma|u|^{p^*}$\\
+\textbf{Jensen's inequality}: $f$ convex, then $f(\mathrm E[X])\leq\mathrm E[f(X)]$\\
+$\Rightarrow \log(\mathrm E[X])\geq\mathrm E[\log(X)]$ \\
+\textbf{Markov's inequality:} $\mathrm P(X\geq a)\leq\frac{\mathrm E[X]}{a}$\\
+\textbf{KL Divergence} Let $Q$, $P$ be prob. distr. of a continuous RV $x \in \mathbb{R}^d$, with densities $q$,$p$. Then  $KL(Q || P) = \int_{-\infty}^{\infty} q(x)\log \frac{q(x)}{p(x)}dx$\\
+\textbf{Entropy} For $X \in \{x_1,..,x_n \}$, $H(X) = - \sum P(x_i)\log P(x_i) $
+
+$\left( \underset{i}{\sum}a_i\right)^2 = \underset{i}{\sum}a_i^2 + 2\underset{i<j}{\sum}a_ia_j$\\
+For square matrices $A$, $B$: $\det A = \det A^t$, $\det AB = \det A \cdot \det B$, $\det A^{-1} = \frac{1}{\det A }$\\
+\textbf{Moment Generating Function}
+$M_x :\mathbb{R}^n \rightarrow \mathbb{R}$, $M_x(t) = \mathbb{E}_x[\exp(t\cdot x)]$. $M_{x+y} = M_x\cdot M_y$\\
+For $x \sim \mathcal{N}(\mu, \Sigma)$, we have $M_x(t) = \exp(t\cdot\mu + \frac{1}{2}t^T\Sigma t$
+%%%% LOSSES %%%%
+\subsection*{Losses}
+%Assume classification problem with $M$ classes. \\
+Cross entropy loss $H(x) = -\overset{M}{\underset{c=1}{\sum}} y_{o,c}\log P(x_{o,c})$ \\
+
+%%%% DISTRIBUTIONS %%%%
+
+\subsection*{Distributions}
+\textbf{Standard normal}: $p(x|\mu, \sigma^2)=\frac{e^{-(x-\mu)^2/(2\sigma^2)}}{\sqrt{2\pi\sigma^2}}$\\
+\textbf{Multivariate normal:} $x \sim \mathcal{N}(\mu, \Sigma)$\\
+$p(x|\mu, \Sigma) = \frac{1}{(2\pi)^\frac{k}{2}\det(\Sigma)^{\frac{1}{2}}} \exp(-\frac{1}{2}(x-\mu)^t\Sigma^{-1}(x-\mu))$\\
+\textbf{Exponential:} $p(x|\lambda)=\lambda e^{-\lambda x}$\\
+\textbf{Bernoulli:} $p(x|p)=p^x (1-p)^{1-x}$\\
+\textbf{Binomial:} $p(x|n,p)={n\choose x}p^x (1-p)^{n-x}$\\
+\textbf{Poisson:} $p(x|\lambda)=\frac{\lambda^x\exp[-\lambda]}{x!}$

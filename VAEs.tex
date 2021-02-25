@@ -1,0 +1,19 @@
+\section*{VAEs}
+\subsection*{Linear Factor Analysis}
+Latent variable prior $\mathbf z\sim\mathcal N(\mathbf 0,\mathrm I), \quad \mathbf z\in\mathrm R^m$\\
+Linear observation model for $\mathbf x\in\mathrm R^n: \quad\mathbf x=\pmb\mu+\mathbf{Wz}+\pmb\eta, \\ \pmb\eta\sim\mathcal N(\mathbf 0, \pmb\Sigma),\quad \pmb\Sigma:=\text{diag}(\sigma_1^2,...,\sigma_n^2)$\\
+Can be shown that: $\mathbf x\sim\mathcal N(\pmb\mu,\mathbf{WW}^T+\pmb\Sigma)$\\
+Non-identifiability, for orthogonal $\mathbf Q$: $(\mathbf{WQ})(\mathbf{WQ})^T=\mathbf{WW}^T$\\
+Posterior inference:\\ $\pmb\mu_{\mathbf{z|x}}=\mathbf W^T(\mathbf{WW}^T+\pmb\Sigma)^{-1}(\mathbf x-\pmb\mu)$\\
+$\pmb\Sigma_{\mathbf{z|x}}=\mathbf I-\mathbf W^T(\mathbf{WW}^T+\pmb\Sigma)^{-1}\mathbf W$\\
+MLE: $\pmb\theta=(\pmb\mu,\mathbf W)\overset{\max}{\leftarrow}\log p(\mathbf X;\pmb\mu,\mathbf W)$, has no closed form solution\\
+\textbf{Probabilistic PCA}: when $\pmb\Sigma=\sigma^2\mathbf I$
+\subsection*{Variational Autoencoders}
+\textit{Generalize factor analysis with depth}\\
+Noise variable: $\quad \mathbf z\sim\mathcal N(\mathbf 0, \mathbf I)$\\
+Density unavailable explicitly, so can't do MLE:\\ $\pmb\theta\overset{\max}{\leftarrow}\sum_{i=1}^n\log p(\mathbf x[i];\pmb\theta)$\\
+Max. ELBO: $\log p(\mathbf x;\pmb\theta)\geq \mathrm E_{\mathbf z\sim q(\mathbf z;\mathbf x)}[\log p(\mathbf x|\mathbf z;\pmb\theta)]-\text{KL}(q(\mathbf z;\mathbf x)||p(\mathbf z))$\\
+Can think of $q(\mathbf z;\mathbf x)$ as posterior ($=p(\mathbf{z|x})$), restricted to (typically Gaussian) variational family: \\ $\mathcal N(\pmb\mu(\mathbf x),\pmb\Sigma(\mathbf x)), \quad \pmb\Sigma(\mathbf x)=\text{diag}(\sigma_1^2(\mathbf x),...,\sigma_n^2(\mathbf x))$ (output of encoder)\\
+Optimizing over $q$ involves gradients of expectations $\Rightarrow$ stochastic backpropagation / re-parameterization trick:\\
+$\mathbf z\sim\mathcal N(\pmb\mu,\pmb\Sigma) \quad \Leftrightarrow \quad\mathbf z=\pmb\mu+\pmb\Sigma^{1/2}\pmb\eta, \quad \pmb\eta\sim\mathcal N(\mathbf 0,\mathrm I)$\\
+$\Rightarrow$ can now backpropagate wrt $\pmb\mu$ and $\pmb\Sigma^{1/2}$!

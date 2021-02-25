@@ -1,0 +1,36 @@
+\section*{Generative Models}
+\subsection*{Density Estimation}
+\textit{Learn a parametrized model $p_\theta(\mathbf x)$ to be indistinguishable from true generative process $p(\mathbf x)$}\\
+\textbf{1 - Prescribed model}: Density explicitly specified (and accessible). Can do MLE. Challenge: Normalizing model\\
+\textbf{2 - Implicit model}: Transformation of densities, can describe density through integration by substitution\\
+\textbf{Integration by substitution - change of variables formula}:\\ $\mathbf x=F(\mathbf z), \quad p_X(\mathbf x)=p_Z(F^{-1}(\mathbf x))|\text{det}(\partial F)|^{-1}$, $p_X$ pushforward of $p_Z$
+\subsection*{Normalizing Flows}
+Bijections $F$ which are convenient to compute, invert and calculate $|\text{det}(\partial F)|$\\
+$F=F_L\circ\cdot\cdot\cdot\circ F_1, \quad F^{-1}=F^{-1}_1\circ\cdot\cdot\cdot\circ F_L{-1}$\\
+$\Rightarrow \text{det}(\partial F)=\prod_{l=L}^1\text{det}(\partial F_l\circ F_{l-1:1}), \quad \text{det}(\partial F^{-1})=\text{det}(\partial F)^{-1}$\\
+Log-likelihood: $\log p(\mathbf x | \mathbf z)=-\sum_{l=1}^L\log |\text{det}(\partial F_l\circ F_{1:l-1})|$\\
+\textbf{Linear flow}: $F(\mathbf x)=\mathbf{Az+b} \Rightarrow \mathcal O(n^3)$ to compute determinant and inverse. If $A$ diagonal, simple \& efficient but not powerful.\\
+If $A$ triagonal: $\text{det}(A)=\prod_i A_{ii},\quad$ but $A^{-1}$ expensive...\\
+\textbf{Invertible linear time flows}: $F(\mathbf z)=\mathbf z+\mathbf u\sigma(\mathbf{w\cdot z}+b)$ \\
+Determinant: $|\text{det}(\partial F)|=|1+\sigma'\mathbf u^T\mathbf w|$\\
+In general, normalizing flows not powerful enough as Jacobian condition is too restrictive $\Rightarrow$ Likelihood-free methods
+\subsection*{Generative Adversarial Networks (GANs)}
+\textit{Derive training signal for generator $G$ from classifier $D$ that discriminates data from model-generated samples}\\
+For sample $\mathbf x$ and model label $y$: $\tilde p_\theta(\mathbf x, y)=\frac{1}{2}(yp(\mathbf x)+(1-y)p_\theta(\mathbf x))$\\
+$\Rightarrow$ balanced binary classification problem\\
+\textbf{Optimal discriminator - Bayes optimal classifier}: \\$q_\theta(\mathbf x)=\frac{p(\mathbf x)}{p(\mathbf x)+p_\theta(\mathbf x)}=\mathrm P(y=1|\mathbf x)$\\
+Train generator by minimizing log-likelihood (=JS for BOC)\\ $l^*(\theta):=\mathrm E_{\tilde p_\theta}[y\log q_\theta(\mathbf x)+(1-y)\log(1-q_\theta(\mathbf x))]=...=\text{JS}(p,p_\theta)-\log 2$\\
+Bayes optimal classifier not accessible, define classification model: $q_\phi: \mathbf x\mapsto [0,1], \quad \phi\in\Phi$\\
+It holds that: $l^*(\theta)\geq\sup_{\phi\in\Phi}l(\theta,\phi)\quad$ (given a generator, the log-likelihood with the BOC is an upper bound for the log-likelihood with any other classifier)\\
+\textbf{General objective}: $l(\theta,\phi):=\mathrm E_{\tilde p_\theta}[y\log q_\phi(\mathbf x)+(1-y)\log(1-q_\phi(\mathbf x))]$\\
+Saddle-point problem: $\theta^*:=\arg\min_{\theta\in\Theta}\{\sup_{\phi\in\Phi}l(\theta,\phi)\}$\\
+Inner sup is impractical $\Rightarrow$ SGD heuristic: \\
+$\theta^{t+1}=\theta^t-\eta\nabla_\theta l(\theta^t,\phi^t), \quad \phi^{t+1}=\phi^t+\eta\nabla_\phi l(\theta^{t+1},\phi^t)$\\
+Alternatively, with $D(\cdot)$ the probability discriminator assigns that sample is from real data:\\ $\min_G\max_D\mathrm E_{\mathbf x\sim p(\mathbf x)}[\log D(\mathbf x)]+\mathrm E_{\mathbf z\sim p_\mathbf z(\mathbf z)}[\log(1-D(G(\mathbf z)))]$\\
+\textbf{Mode collapse (Helvetica scenario)}: Generator collapses too many values of $z$ to similar values of $x$ and does not capture the diversity in $p(\mathbf x)$. Avoid by not training $G$ too much without updating $D$. Can lead to good-looking samples without diversity\\
+\textbf{Vanishing gradient}: If the discriminator becomes too strong the gradient wrt the parameters of the generator vanishes ($\rightarrow 0$), so there will be no learning signal for the generator and it will not improve. Can lead to noisy/blurry samples but good variability\\
+$\Rightarrow$ trade-off\\
+\textbf{Why does minimizing Jensen-Shannon divergence work?}\\ Definition: $\text{JS}(Q||P)=\frac{1}{2}\text{KL}(P||\frac{P+Q}{2})+\frac{1}{2}\text{KL}(Q||\frac{P+Q}{2})$\\
+In MLE we minimize the forward KL-divergence $\text{KL}(P||Q)=\int_xp(x)\log\frac{p(x)}{q(x)}dx$, which leads $q(x)$ to spread its mass over the whole support of $p(x)$, which is why samples from e.g. VAEs tend to be blurry. \\
+If we minimize the reverse KL-divergence $\text{KL}(Q||P)$, $q(x)$ can be set to zero when $p(x)>0$, which leads to a $q(x)$ that focuses on certain mode(s) of $p(x)$. \\
+Want something in between where whole support of $p(x)$ is covered while $q(x)=0$ where $p(x)=0$ $\Rightarrow$ \textbf{JS-divergence}!

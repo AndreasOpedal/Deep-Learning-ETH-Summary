@@ -1,0 +1,14 @@
+\section*{Theory of DNNs}
+\subsection*{VC Theory}
+\textbf{Shattering coefficient: }maximum number of ways in which $n$ points can be classified by function class $\mathcal F$ \\
+$\Rightarrow \mathcal S_{\mathcal F}(n)=\sup_{(\mathbf x_1,...,\mathbf x_n)}|\{(f(\mathbf x_1),...,f(\mathbf x_n)): f\in\mathcal F\}|\leq 2^n$\\
+Say that $\mathcal F$ \textbf{shatters} a set of $n$ points if $S_\mathcal F(n)=2^n$\\
+\textbf{VC-dim} The VC-dim of $\mathcal{F}$ is $n$ $\iff$ there is a set of size $n$ that is shattered by $\mathcal{F}$, and \textbf{no} set of size $n+1$ is shattered by $\mathcal{F}$. \\ $\text{VC-dim}(\mathcal{F}) \leq  \log_2(|\mathcal{F}|)$\\
+\textbf{Vapnik-Chervonenkis Theorem:} For any $\delta>0$, with probability at least $1-\delta$:\\
+$\forall f\in\mathcal F, \quad \mathcal R(f)\leq\mathcal R_n(f)+2\sqrt{2\cdot\frac{\log\mathcal S_\mathcal F(2n)+\log\frac{2}{\delta}}{n}}$
+\subsection*{PAC Bayes Bounds}
+\textbf{Donsker's Theorem:} For any $P>>Q$, $P$-measurable function $\phi$ \\ $\mathrm E_Q[\phi]\leq \text{KL}(Q||P)+\log\mathbb E_P[e^\phi]$\\
+\textbf{McAllister theorem} $\forall$ fixed $P$ and any $Q$, $\epsilon \in (0,1)$ w.prob $ \geq \epsilon$ over sample set $S$: 
+$\mathbb{E}_Q[e_f] - \mathbb{E}_Q[e_f^S] \leq \sqrt{\frac{2}{|S|}\left[KL(Q||P) + \ln\left( \frac{2\sqrt{|S|}}{\epsilon}\right)\right]}$. \\
+\textbf{Interpretation for DNNs:} Take $P=\mathcal N(\theta_0,\lambda\mathrm I)$ to be prior over parameter space. $Q=\mathcal N(\theta,\text{diag}(\sigma^2))$ (learned from data) is a distribution over $\mathcal F$, where our function $f$ is sampled from. Minimize bound together with (surrogate of) empirical risk.\\
+A \textbf{stochastic neural network} is a network whose weights are drawn from a distribution $Q$ each time data is propagated through the network.

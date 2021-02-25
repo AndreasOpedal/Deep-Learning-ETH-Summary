@@ -1,0 +1,44 @@
+\section*{Connectionism}
+\textbf{McCulloch \& Pitts neuron:} $f(x;\mathbf{\sigma,\theta})=\begin{cases} 
+       1, \quad \sum_{i=1}^n\sigma_i x_i\geq\theta\\
+       0, \quad \text{else}
+       \end{cases}$ \\
+$x\in\{0,1\}^n, \quad \sigma\in\{\pm 1\}^n, \quad \theta\in\mathbb{Z}$\\
+Disjunctive Normal Form: $f(\mathbf{x};\sigma,\theta)=\bigvee_{I\in\mathcal{I}}(\bigwedge_{i\in I}x_i\bigwedge_{i\notin I}\bar x_i),$\\
+$\mathcal{I}=\{I: \sum_{i\in I}\sigma_i\geq \theta\}$ (OR of ANDs)\\
+\textbf{Turing Type A machine (NAND):}\\ $y(t+1)=1-x_1(t)x_2(t), \quad x_1(t),x_2(t)\in\{0,1\}$\\
+\textbf{Turing Type B machine:}\\
+$A(1,\text{NAND}(x_1,x_1))=x_1, \quad A(0,\text{NAND}(x_1,x_1))=1$\\
+$\text{NAND}(A,x_2,...,x_n)=\begin{cases} \text{NAND}(x_2,...,x_n) \quad \text{if } A\leftarrow 1 \\ \text{NAND}(x_1,...,x_n) \quad \text{else}\end{cases}$
+
+\subsection*{Perceptron}
+$(\mathbf{x,\theta})\rightarrow \text{sgn}(\mathbf{x\cdot\theta}),\quad$  update rule: $\Delta\mathbf{\theta}=\begin{cases} 
+       \mathbf{0}, \quad y(\mathbf{x\cdot\theta})\geq 0\\
+       y\mathbf x, \quad \text{otherwise}
+       \end{cases}$\\
+Path of updates always zig-zag since $\Delta\mathbf{\theta\cdot\theta}<0$ for updates \\
+Update rule is SGD for the loss: $l(\mathbf x,y;\mathbf\theta)=\max\{0,-y\mathbf{x\cdot\theta}\}$\\
+\textbf{Lemma (Norm Growth)}: $(\mathbf x^t, y^t)$ perceptron mistakes inducing updates $\Delta\mathbf\theta^t, \mathbf\theta^s=\sum_{t=1}^s\Delta\mathbf\theta^t$. Then:\\
+$||\mathbf\theta^s||^2\leq\sum_{t=1}^s||\mathbf x^t||^2 \quad$ (prove by induction!)\\
+\textbf{Cor: } If $||\mathbf x^t||\leq 1$ then $||\mathbf\theta^s||\leq\sqrt s$\\
+\textbf{Def (Linear Separability)}:  $\mathcal{S}$ linearly separable with margin $\gamma>0$ if $\exists \mathbf\theta^*, ||\mathbf\theta^*||=1:y\mathbf{x\cdot\theta^*}\geq\gamma>0 \quad \forall(\mathbf x, y)\in\mathcal S$\\
+\textbf{Novikov's convergence theorem:} Converges in at most $\gamma^{-2}$ steps (if assume $||\mathbf x^t||\leq 1$). Show $\gamma s\leq s$ and start with fact that $\Delta\theta^t\theta^* = y^tx^t\theta^*\geq \gamma$ $+$ $\theta^s=\sum\Delta\theta^t$ $+$ Cauchy-Schwarz\\
+\textbf{Cover's theorem}: Dichotomies possible with linear separators: $C(s,n)=2\sum_{i=0}^{n-1} {s-1\choose i}$\\
+Prove by showing recurrence relation $C(s+1,n)=C(s,n)+C(s,n-1)$ using Pascal's rule: ${n-1 \choose k} + {n-1 \choose k-1}={n \choose k}$\\
+\textbf{VC dimension:} largest set $S$ that can be shattered. Corollary of Cover's thm: $n$ points can be shattered by linear functions in $n$ dimensions (meaning can realize all $2^n$ points). $m>n$ can not.
+\subsection*{Willshaw Memory}
+\textbf{Hebb rule}: $\Delta\theta_{ij}^t\propto x_i^tx_j^t$ (neurons that fire together, wire together)\\
+\textbf{r-sparse Boolean vectors} $\mathbb{B}_r^n=\{x\in\{0,1\}^n|\sum x_i \leq r\}$\\
+\textbf{Upper bound on number of patterns $s$:} $s\leq\frac{n^2}{r\log n}, \\ \log {n\choose r}\approx r\log n$ is pattern information and $n^2$ total number of bits\\
+\textbf{Binary memory matrix:} $\Theta_{ji} = \min\{1,\sum_{t=1}^sy_j^tx_i^t\}$, $\Theta_{ji} \in \{0,1\}^{nxn}$ \\ Alternatively: $\Theta=\min\{\mathbf 1,\sum_{t=1}^s\mathbf y^t(\mathbf x^t)^T\}$\\
+\textbf{Retrieve $y$ from given $x$:} $z=\Theta x, \quad y_j=\begin{cases} 0 \quad z_j<r \\ 1 \quad \text{else} \end{cases}$\\
+\textbf{Monotonicity:} $x^t\mapsto y\geq y^t, \forall (x^t,y^t)\in\mathcal S$ (i.e. get at least as much as ask for). Proof: $\Theta=\min\{\mathbf 1,\sum_{\tau}\Theta^\tau\}\geq\min\{\mathbf 1,\Theta^t\}=\Theta^t$\\
+$\mathbf z^t=\Theta \mathbf x^t\geq\Theta^t \mathbf x^t=\mathbf y^t(\mathbf x^t)^T\mathbf x^t=r\mathbf y^t$\\
+\textbf{Maximal capacity:} $\max_qI(\text{patterns})=(\log 2)n^2\approx 0.693n^2$ in the limit, for $r=\log n$. Half of $\theta_{ji}$ will be $0$ and half will be $1$ as $n\rightarrow\infty$
+\subsection*{Hopfield Networks}
+\textbf{Idea:} Store patterns in $\Theta$, for recovery from corrupted patterns\\
+$\Theta=\sum_{t=1}^s[x_tx_t^T-\mathrm I_n]\in\mathrm Z^{n\times n}$\\
+Asynchronous update: $\tilde x_i\leftarrow \text{sign}(\sum_{j\neq i}\theta_{ij}\tilde x_j+\theta_{i0})$  (Hopfield dynamics)\\
+Synchronous updates can lead to limit cycles\\
+Lyapunov function: $\Epsilon=-\sum_{i,j=1}^n\theta_{ij}x_ix_j-\sum_{i=1}^n\theta_{i0}x_i$\\
+\textbf{Hebb -Hopfield} $\Theta \approx \underset{t=1}{\overset{s}{\sum}}[x^{t}^Tx^t-I]$ $\in \mathbb{R}^{nxn}$. Use fact that for $\hat{x}$ with hamming-dist $k$ to $x$, $x\cdot\hat{x}-1 = (n-2k-1)$ to show $-x,x$ both attractors. Capacity for num of patterns is $\frac{\alpha}{n} \leq \alpha^* \approx 0.138$. For Hopfield (without Hebb's rule, but with optimal weights) $\alpha^* = 2$

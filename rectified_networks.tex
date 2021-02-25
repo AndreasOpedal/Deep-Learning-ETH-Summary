@@ -1,0 +1,43 @@
+\section*{Rectified Networks}
+Sigmoids suffer from vanishing gradients / unreliable gradient information in deep networks: $\sigma'(z)=\sigma(z)\sigma(-z)\overset{z\rightarrow\pm\infty}{\rightarrow}0$\\
+Rectified units: continuous piecewise linear\\
+Additional benefit of rectified units: computationally faster
+\subsection*{Rectified Linear Unit (ReLU)} $(\mathbf x,\pmb\theta)\mapsto (\mathbf x\cdot\pmb\theta)_+=\max\{0,\mathbf x\cdot\pmb\theta\}$\\
+Splits the input space in two half-spaces separated by hyperplane $\mathcal H_{\pmb \theta}^0$: $\quad\mathcal H_{\pmb \theta}^+=\{\mathbf{x: x}\cdot\pmb\theta>0\}, \quad\mathcal H_{\pmb \theta}^-=\{\mathbf{x: x}\cdot\pmb\theta<0\}$ \\
+Subderivative: $\partial(z)_+=\begin{cases} 1 \quad\quad z>0 \\ [0,1] \quad z=0 \\ 0 \quad\quad \text{else}
+\end{cases}$\\
+Definition of subderivative of convex $f$ at $z_0$: \\$\partial f(z_0)=\{c: f(z)-f(z_0)\geq c(z-z_0)\}$\\
+\textbf{Activation patterns}: units can be either active $\mathbf x\in \mathcal H_{\pmb \theta}^+$ or inactive $\mathbf x \in \mathcal H_{\pmb \theta}^-$, with patterns $H(\pmb\Theta\mathbf x)\in\{0,1\}^m$\\
+$|\{H(\pmb\Theta\mathbf x):\mathbf x\in\mathbb R^n\}|\leq2^m$, but is less since not every boolean vector is a valid activation pattern (because not every activation pattern might actually have an input that produces it) \\
+\textbf{Vanishing gradient}: For sigmoids the sensitivity (gradient wrt activation) can go to $0$, which means that slight changes in parameters do not lead to any signal. With ReLUs: $\partial(z)_+=1\quad \forall z>0$\\
+\textbf{Backprop}: If unit $z_{lj}$ inactive then $\nabla_{\pmb\theta_{lj}}z_{lj}=\nabla_{\matbf z_{l-1}}z_{lj}=\mathbf 0$\\
+Parameter gradients vanish and Jacobi matrix is sparse:\\
+$\partial F_l:=\tilde{\pmb\Theta}_l:=\begin{bmatrix} \tilde{\pmb\theta}^T_{l1}\\...\\\tilde{\pmb\theta}^T_{lm}
+\end{bmatrix}, \quad \tilde{\pmb\theta}^T_{lj}=\begin{cases} \mathbf 0 \quad z_{lj}=0 \\ \pmb\theta^T_{l1} \quad \text{otherwise}\end{cases}$\\
+\textbf{Dying ReLUs}: If a specific unit is inactive for all inputs (can happen on initialization or during training) $\Rightarrow$ parameters will not be updated. Could prune or re-initialize\\
+\textbf{Absolute Value Unit (AbsU)}: $|z|, \quad \partial |z|=\begin{cases}  1 \quad\quad\quad z>0 \\ [-1,1] \quad z=0 \\ -1 \quad\quad z<0  \end{cases}$\\
+Relation to ReLU: $(z)_+=\frac{z+|z|}{2}$ and $|z|=2(z)_+-z=(z)_++(-z)_+$\\
+No sparseness property as in ReLUs, but symmetric\\
+\textbf{Smooth ReLU approximations}: Combine rectification and smoothness\\
+Softplus: $(\mathbf x, \pmb\theta)\mapsto\log(1+\exp[\mathbf x\cdot\pmb\theta])\in(0,\infty)$\\
+Exponential linear unit: $(\mathbf x, \pmb\theta)\mapsto\begin{cases} \mathbf x\cdot \pmb\theta \quad\quad\quad\quad \mathbf x\cdot\pmb\theta\geq 0 \\ \exp[\mathbf x\cdot\pmb\theta]-1 \quad \text{else}\end{cases}\in(-1,\infty)$\\
+\textbf{Leaky ReLU}: Gives some gradient information even in $\quad\mathcal H_{\pmb \theta}^-$ \\ (low sensitivity instead of no sensitivity, typical $\epsilon=0.01$)\\
+$(\mathbf x, \pmb\theta)\mapsto \begin{cases} \mathbf x \cdot \pmb\theta \quad \mathbf x \cdot \pmb\theta\geq 0 \\ \epsilon\mathbf x \cdot \pmb\theta \quad \text{else}  \end{cases}\in\mathbb R$
+\subsection*{Universal function approximators}
+\textbf{Theorem}: Piecewise linear functions are dense in $C([0,1])$\\
+\textbf{Theorem}: A piecewise linear function with $m$ pieces can be written as $g(x)=ax+b+\sum_{i=1}^{m-1}c_i(x-x_i)_+$ (sum of ReLU units)\\
+(alternative representation exists with absolute value function)\\
+\textbf{Corollary}: Networks with one hidden layer of ReLU or AbsU are universal function approximators
+\subsection*{Minimal non-linearity}
+k-\textbf{Hinge functions}: $g(\mathbf x)=\max_{j=1}^k\{\pmb\theta_j\cdot\mathbf x+b_j\}$ (aka maxout units)\\
+Representational power: $2\max\{f,g\}=f+g+|f-g|$\\
+\textbf{Theorem}: Every continuous piecewise linear function can be written as a signed sum of k-Hinges with $k\leq n+1$\\
+\textbf{Polyhedral functions}: $f$ is polyhedral $\Leftrightarrow$ epi$(f)$ is polyhedral set\\
+$S$ polyhedral $\Leftrightarrow$ $S$ is finite intersection of closed half-spaces, i.e.\\
+$S=\{\mathbf x\in\mathbb R^n: \pmb\theta_j\cdot\mathbf x+b_j\geq0,j=1,...,r\}$\\
+\textbf{Theorem}: If $f$ polyhedral then $\exists \mathcal A\subset\mathbb R^{n+1},|\mathcal A|=k$ s.t. \\$f(\mathbf x)=\max_{(\pmb\theta,b)\in\mathcal A}\{\pmb\theta\cdot \mathbf x+b\}$\\
+\textbf{Theorem}: Every continuous piecewise linear function $f$ can be written as the difference of two polyhedral functions\\
+$\Rightarrow$ \textbf{Theorem}: Maxout networks with two maxout units (difference of two k-Hinges) are universal function approximators
+
+
+

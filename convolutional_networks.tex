@@ -1,0 +1,52 @@
+\section*{Convolutional Networks}
+\subsection*{Convolution Operator}
+\textbf{Integral operators}
+Kernel $H:\mathbb{R}^2\rightarrow\mathbb{R}, \quad -\infty\leq t_1\leq t_2 \leq \infty$\\
+$\left(Tf\right)(u)=\int_{t_1}^{t_2}H(u,t)f(t)dt$\\
+\textbf{Fourier Transform}\\
+$t_1=-\infty,\quad t_2=\infty, \quad H(u,t) = \exp\{-2\pi itu\}$\\
+$(\mathcal{F}f)(u):=\int_{-\infty}^{\infty}\exp\{-2\pi itu\}f(t)dt$\\
+\textbf{Convolution}\\
+$(f*h)(u):=\int_{-\infty}^{\infty}h(u-t)f(t)dt = \int_{-\infty}^{\infty}f(u-t)h(t)dt$\\ Convolutions are \textbf{commutative} (exchange function and kernel)
+\\And \textbf{shift-equivariant}: $f_\Delta(t):=f(t+\Delta), \Rightarrow f_\Delta*h=(f*h)_\Delta$\\
+\textbf{Linear shift-equivariant transforms}\\
+$T(\alpha f+\beta g) = \alpha Tf+\beta Tg, \quad \forall f,g ; \quad \forall\alpha,\beta\in \mathbb{R}$\\
+$\left(Tf_{\Delta}\right)(t) = \left(Tf\right)(t+\Delta)$\\
+\textbf{Theorem:} Any linear translation-equivariant (shift-equivariant) transformation $T$ can be written as a convolution with some $h$\\
+\textbf{Discrete convolutions}\\
+$f,h:\mathbb{Z}\rightarrow \mathbb{R}$. Define discrete convolution via\\ $(f*h)[u]:=\sum_{t=-\infty}^{\infty}f[t]h[u-t]$\\Typical choice of $h$: support over finite window, e.g.$h(t)=0$ for $t\notin [t_{\text{min}},t_{\text{min}}]$. In higher dimensions, replace vectors by matrices or fields $(F*G)[i,j] = \sum_k\sum_lF[i-k,j-l]G[k,l]$\\
+\textbf{Cross-correlation}\\
+ $(f\star h)[u]:=\sum_{t=-\infty}^{\infty}f[t]h[u+t]$\\
+ $(f\star h)=(\bar f*h), \quad \bar f[t]:=f[-t]$\\
+\textbf{Toeplitz matrices}: Constant on the diagonals (from exercise: parameters of a 1D convolutional layer can be written as a dense layer through a Toeplitz matrix)
+\subsection*{Convolutional Neural Networks}
+Exploiting translation equivariance\\
+Exploiting locality and scale (temporal, spatial,...)\\
+Increased efficiency through parameter sharing \\
+\textbf{Receptive fields and sparse connectivity} Activity of one unit doesn't depend on all units from previous layer. Convolved signal \textbf{inherits} topology of original signal. Can create longer range dependencies (larger receptive field) by nesting of convolutions \\
+\textbf{Border handling:} through \textit{same} padding (with zeros) to retain dimension or \textit{valid} padding to only retain values from windows fully contained in support of signal\\
+\textbf{Half (same) padding}
+(Assuming unit strides) For any $i$ and $k$ odd $(k=2n+1, \quad n\in\mathbb{N})$, $s=1$ and $p=\lfloor\dfrac{k}{2}\rfloor = n$\\
+$o=i+2\lfloor\dfrac{k}{2}\rfloor - (k-1) = i$.\\
+\textbf{Full padding} In this setting every possible partial or complete superimposition of the kernel on the input feature map is taken into account.\\
+For any $i,\quad k$ and for $s=1$ and $p=k-1$\\
+$o= i + k-1$\\
+\textbf{Backpropagation}\\
+Exploit structural sparseness in computing $\dfrac{\partial x_i^l}{\partial x_j^{l-1}}$\\
+Receptive field of $x_i^l: \mathcal{I}_i^l:=\{j:w_{ij}^l\neq 0 \}$, $\mathbf{W}^l$ Toeplitz matrix of the convolution. $\dfrac{\partial x_i^l}{\partial x_j^{l-1}}=0$, for $j\notin \mathcal{I}_i^l$.\\
+\textbf{Weight sharing}$\dfrac{\partial\mathcal{R}}{\partial h_j^l} = \sum_i\dfrac{\partial\mathcal{R}}{\partial x_i^l}\dfrac{\partial x_i^l}{\partial h_j^l}$, $h_j^l$ kernel weight. Weights are reused for every unit within target layer.\\
+\textbf{Backprop example:} Let $(\mathbf x*\mathbf w)_{ij}=\sum_{k=1}^q\sum_{l=1}^qx_{i+q-k,j+q-l}w_{k,l}, \\1\leq i,j\leq d-q+1$. Let $r=d-q+1$, then $(\mathbf x*\mathbf w)\in\mathbb R^{r\times r}$. Define:\\
+$f(\mathbf x)=\mathbf v^T\text{vec}(\sigma(\mathbf x*\mathbf w))$. Then:\\
+$\frac{\partial f(\mathbf x)}{w_{ab}}=\sum_{k,l=1}^r\text{mat}(\mathbf v)_{kl}\sigma'((\mathbf x*\mathbf w)_{kl})x_{k+q-a,l+q-b}=...=\\=(\text{rot}_\pi(\mathbf x)*(\text{mat}(\mathbf v)\odot\sigma'(\mathbf x*\mathbf w)))_{ab}$,\\ where $\text{rot}_\pi(\mathbf A)$ flips rows and columns\\
+\textbf{Stages}\\
+Non-linearities\\
+Pooling\\
+Sub-sampling (strides)\\
+\textbf{Pooling 1D}: $x_i^{\max}=\max\{x_{i+k}: 0\leq k< r\}$\\
+\textbf{Pooling 2D}: $x_{ij}^{\max}=\max\{x_{i+k,j+l}:0\leq k< r,0\leq l< r\}$\\
+\textbf{Stacking convolutional layers ($\mathbf{X,Y}$ 3rd order tensors):}\\ $y[r][s,t]=\sum_u\sum_{\Delta s,\Delta t}w[r,u][\Delta s, \Delta t]x[u][s+\Delta s, t+\Delta t]$\\
+\textbf{Convolution arithmetic - output dimensions}\\
+Dimension-wise: For any input size $i$, kernel size $k$, padding $p$ and strides $s$,\\ $o=\left\lfloor\dfrac{i+2p-k}{s} \right\rfloor + 1$\\
+\textbf{Convolution arithmetic - receptive field}\\
+Dimension-wise recursion formula: For receptive field $r_l$, stride $s_l$ and kernel size $k_l$\\
+$r_{l-1}=s_l\cdot r_l+(k_l-s_l), \quad r_L=1$

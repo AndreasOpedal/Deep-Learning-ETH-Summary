@@ -1,0 +1,42 @@
+\section*{Adversarial Robustness}
+\textit{Adversarial examples are small manipulations of input which cause the model to change its prediction}\\
+\textbf{Additive adversarial manipulation}: Find $x\in\mathrm R^d$ s.t. $k(x+r)\neq k(x)$ and $x+r$ similar to $x$. As proxy for \textit{similar}, use $l_p$-norm robustness - $||r||_p$ should be small\\
+Two approaches to measure robustness to adversarial perturbations: unconstrained \& constrained perturbations
+\subsection*{Unconstrained Perturbations - DeepFool}
+\textit{Find smallest perturbation in $l_p$-norm that induces mistake}\\
+Let $f:\mathrm R^d\rightarrow \mathrm R^C$ be the logits, i.e. outputs before softmax, and wlog $k(x)=1$\\
+Disadvantage of approach: Typically get close to decision boundary which may be exploited to detect them (can e.g. train a classifier to detect them given some confidence threshold)\\
+$\hat\rho_{\text{adv}}=\frac{1}{n}\sum_{i=1}^n\frac{||r(x_i)||_2}{||x_i||_2}$\\
+\textbf{DeepFool - Binary case:} $\arg\underset{r}{\min} ||r||_p$ s.t. $f_2(x+r) - f_1(x+r)>0$\\
+First-order Taylor approximation around $x$, rewrite constraint:\\ $(\nabla_x f_1(x)-\nabla_x f_2(x))^Tr+f_1(x)-f_2(x)<0 \Rightarrow$ linearized classifier\\
+Solve iteratively until $k(x+r_1+...+r_n)\neq k(x)$\\
+Optimum in each step, $1/p+1/p^*=1$: \\ $r^*=\frac{f_1(x)-f_2(x)}{||\nabla_xf_1(x)-\nabla_xf_2(x)||^{p^*}_{p^*}}\cdot|\nabla_xf_1(x)-\nabla_xf_2(x)|^{p^*-1}\odot\text{sgn}(\nabla_xf_1(x)-\nabla_xf_2(x))$\\
+\textbf{DeepFool - General case:} Optimize wrt $r_i$ for each class and update in the direction of smallest $r_i$\\
+$x_0=x$\\
+$x_k=x_{k-1}+\underset{j\neq k(x)}{\min}\{\frac{|h_j(x_{k-1})|}{||\nabla_xh_j(x_{k-1})||^{p^*}_{p^*}}\cdot |\nabla_xh_j(x_{k-1})|^{p^*-1}\odot\text{sgn}(\nabla_xh_j(x_{k-1}))\}$, where $h_j(x_{k-1})=f_j(x_{k-1})-f_{k(x)}(x_{k-1})$
+\subsection*{Constrained Perturbations - PGD}
+\textit{Given $\epsilon>0$ find perturbation $r$ with $||r||_p\leq\epsilon$}\\
+Disadvantage of approach: Perturbation found can be larger than the minimal one within ball\\
+\textbf{Projected Gradient Descent / Ascent}:\\
+$x_0\sim\mathcal U(\mathcal B_\epsilon^p(x))$\\
+$x_k=\Pi_{\mathcal B_\epsilon^p(x)}(x_{k-1}+\alpha\underset{v_k: ||v_k||_p\leq 1}{\arg\max}v_k^T\nabla_xl(y,f(x_{k-1})))$\\
+where $r_k=x_k-x, \quad\Pi_{\mathcal B_\epsilon^p(x)}(\tilde x)=\arg\min_{x^*\in \mathcal B_\epsilon^p(x)}||\tilde x-x^*||_2$ and $v^*=\underset{v: ||v||_p\leq 1}{\arg\max}v^Tz=\frac{\text{sign}(z)\odot|z|^{p^*-1}}{||z^*||^{p^*-1}_{p^*}}$\\
+\textbf{Adversarial Training:} Most effective method for improving robustness. Can combine with e.g. PGD:\\
+$\underset{\theta}{\min}\underset{||r||_p\leq \epsilon}{\max}(f_{\theta^t}(x+r),y)$\\
+Accuracy on clean data degrades $\rightarrow$ more data \\
+Network overfits to attacks used in training $\rightarrow$ use many iterations for PGD\\
+Takes longer to train $\rightarrow$ explicit regularization\\
+Mode of failure 1: gradient wrt input norm becomes too small \\
+Mode of failure 2: gradient wrt input becomes noisy $\rightarrow$ not find closest perturbation
+\subsection*{Benefits beyond robustness and security}
+\textbf{Interpretability} - robust networks learn more human-interpretable features \\
+\textbf{Transfer learning} - robust networks generalize better across domains \\
+\textbf{Generative modeling} - robust networks perform better in generative tasks 
+\subsection*{Adversarial training and operator norm regularization}
+Linearization: $f(\mathbf x+\Delta\mathbf x)\approx f(\mathbf x)+J_f(\mathbf x)\Delta\mathbf x$\\
+$\Rightarrow \frac{||f(\mathbf x+\Delta\mathbf x)-f(\mathbf x)||_2}{||\Delta\mathbf x||_2}\approx\frac{||J_f(\mathbf x)\Delta\mathbf x||_2}{||\Delta\mathbf x||}\leq \sigma(J_f(\mathbf x))=:\underset{v:||v||_2\leq 1}{\max}||J_f(\mathbf x)v||_2$\\
+So from a robustness perspective, want small operator norm\\
+\textbf{Data-independent spectral norm reg.:} $\sigma(J_f(\mathbf x))\leq\prod_{l=1}^L\sigma(\mathbf W^l)$\\
+Generalizes from train to test set but can be arbitrarily loose\\
+\textbf{Data-dependent:} $\min_\theta\mathrm E_{(\mathbf x,\mathbf y)\sim\tilde P}[l(y,f(\mathbf x))+ \frac{\tilde\lambda}{2}\sigma(J_f(\mathbf x))^2]$,\\ where $\sigma(J_f(\mathbf x))$ is computed by the power method\\
+$l_p$-norm constrained PGA based adversarial training with an $l_q$-norm loss on the logits of clean and perturbed inputs is equivalent to data-dependent $(p, q)$ operator norm regularization.

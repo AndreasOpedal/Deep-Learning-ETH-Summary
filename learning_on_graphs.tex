@@ -1,0 +1,14 @@
+\section*{Learning on Graphs}
+\textbf{Motivation}: Data may not be sampled iid but could be graph-structured\\
+\textbf{Use-cases}: Node classification, link prediction, generative modeling\\
+\textbf{Focus here}: GCN from paper \textit{Semi-Supervised Classification with Graph Convolutional Networks}, Kipf \& Welling 2017\\
+\textbf{Idea}: To make prediction on node, gather information from context in graph\\
+Let $\mathbf X\in\mathbb R^{d\times n}$ be graph of $n$ nodes with $d$ features, then define:\\
+$\mathbf X^{l+1}=\sigma(\mathbf W^l\mathbf X^l \mathbf Q),\quad $where $\mathbf{WX}$ sums over dimensions and $\mathbf{XQ}$ sums over data points / nodes (to learn from neighborhood)\\
+Define degree-normalized matrix $Q=\tilde D^{-\frac{1}{2}}\tilde A\tilde D^{-\frac{1}{2}}$, where $\tilde D$ is the diagonal degree matrix of $\tilde A:=A+\mathrm I_n$ and $A$ is adjacency matrix. It holds that:\\
+$q_{ij}=\frac{a_{ij}+\delta_{ij}}{\sqrt{\tilde d_{i}\tilde d_j}}, \quad \tilde d_i=1+\sum_j A_{ij}, \quad \delta_{ij}=\begin{cases} 1, \quad i=j \\ 0, \quad i\neq j\end{cases}$\\
+Activations from neighbors are mixed together with respective $Q$-weights: and $(X^lQ)_{ij}=([x^l[1],...,x^l[n]]\cdot Q)_{ij}=\sum_{k=1}^nx_{ik}q_{kj}$\\
+$\Rightarrow (X^lQ)_{\bullet j}=\sum_{k}q_{kj}\cdot x^l[k]\quad$ (sum over neighborhood of node $j$)\\
+\textbf{Cyclic chain:} For regular lattice graph, $Q$ is Toeplitz matrix and thus related to convolutional layer with window size same as neighborhood size\\
+\textbf{Linear Shift Invariant Filter:} linear function $H$ over graph with adjacency matrix $A$ such that $H(Ax)=A(Hx)$. $H$ is $A$-shift invariant iff: $\quad H=\theta_0\mathrm I+\theta_1A+...+\theta_nA^n$\\
+If we consider $H(\theta_0,\theta_1)=\theta_0\mathrm I+\theta_1(D^{-\frac{1}{2}}AD^{-\frac{1}{2}})$ and $\theta_0=\theta_1$ then largest eigenvalue is $2$, which can be a source of instabilities. Motivates $\mathrm I + D^{-\frac{1}{2}}AD^{-\frac{1}{2}}\mapsto \tilde D^{-\frac{1}{2}}\tilde A\tilde D^{-\frac{1}{2}}$, which has largest EV $1$ 
